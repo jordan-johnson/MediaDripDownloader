@@ -5,18 +5,12 @@ using MediaDrip.Downloader.Shared;
 
 namespace MediaDrip
 {
-    public interface IMediaDripDownloader : INotifyQueueChanged, IDisposable
+    public interface IMediaDripDownloader : IDisposable
     {
         #region Controls
 
         void AddSource(ISource source);
-
-        void Enqueue(String address, String destination, bool autoDownload = true);
-        
-        void ForceStart(DownloadObject download);
-        void ForceStartAll();
-
-        void CancelBySaveDestination(String destination);
+        void CancelBySaveDestination(Uri destination);
         void CancelAll();
 
         #endregion

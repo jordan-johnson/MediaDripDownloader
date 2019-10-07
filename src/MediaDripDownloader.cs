@@ -4,24 +4,23 @@ using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 using MediaDrip.Downloader.Shared;
 using MediaDrip.Downloader.Event;
+using MediaDrip.Downloader.Queue;
 using MediaDrip.Downloader.Web;
 
 namespace MediaDrip
 {
-    public sealed partial class MediaDripDownloader : IMediaDripDownloader
+    public sealed partial class MediaDripDownloader : IMediaDripDownloader, IQueueItems<DownloadObject>
     {
         private bool _isDisposing;
-        private ObservableCollection<DownloadObject> _queue;
         private SourceHandler _sourceHandler;
 
-        public event DownloadQueueEventHandler NewQueuedItems;
-        public event DownloadQueueEventHandler RemovedQueuedItems;
+        public ObservableCollection<DownloadObject> Queue { get; private set; }
 
         public MediaDripDownloader()
         {
             _sourceHandler = new SourceHandler();
 
-            InitializeQueueCollectionAndListeners();
+            Queue = new ObservableCollection<DownloadObject>();
         }
 
         ~MediaDripDownloader()
@@ -44,51 +43,23 @@ namespace MediaDrip
                 {
                     Console.WriteLine("dispose");
 
-                    TerminateQueueCollectionAndListeners();
+                    Queue = null;
                 }
 
                 _isDisposing = true;
             }
         }
 
-        private void InitializeQueueCollectionAndListeners()
-        {
-            _queue = new ObservableCollection<DownloadObject>();
-
-            _queue.CollectionChanged += OnCollectionChanged_Event;
-
-            NewQueuedItems += OnNewQueuedItems_Event;
-        }
-
-        private void TerminateQueueCollectionAndListeners()
-        {
-            if(_queue != null)
-                _queue.CollectionChanged -= OnCollectionChanged_Event;
-            
-            _queue = null;
-
-            NewQueuedItems = null;
-            RemovedQueuedItems = null;
-        }
-
-        private void ThrowIfDuplicateQueuedItem(DownloadObject download)
-        {
-            if(_queue.Contains(download))
-            {
-                throw new Exception();
-            }
-        }
-
         private void ProcessDownloadObjects(DownloadObject download)
         {
-            _sourceHandler.Run(download.DownloadAddress);
+            _sourceHandler.Run(download.InputAddress);
         }
 
         private void ProcessDownloadObjects(IEnumerable<DownloadObject> downloads)
         {
             foreach(var download in downloads)
             {
-                _sourceHandler.Run(download.DownloadAddress);
+                _sourceHandler.Run(download.InputAddress);
             }
         }
     }

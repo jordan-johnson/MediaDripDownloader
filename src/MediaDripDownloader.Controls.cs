@@ -10,6 +10,60 @@ namespace MediaDrip
     {
         public void AddSource(ISource source) => _sourceHandler.Add(source);
 
+        /// <summary>
+        /// Adds a DownloadObject to queue for processing.
+        /// 
+        /// Throws DuplicateDownloadException if queue contains an object with a matching output address.
+        /// </summary>
+        public void Enqueue(DownloadObject obj)
+        {
+            var alreadyInQueue = Queue.FirstOrDefault(x => x.OutputAddress == obj.OutputAddress);
+
+            if(alreadyInQueue != null)
+                throw new DuplicateDownloadException(alreadyInQueue, obj, "Queued item exists with matching output address.");
+
+            Queue.Add(obj);
+        }
+
+        /// <summary>
+        /// Creates a DownloadObject and adds it to the queue for processing.
+        /// </summary>
+        /// <param name="input">File address to be downloaded.</param>
+        /// <param name="output">Save destination.</param>
+        /// <param name="immediatelyDownload">Automatically process once in queue?</param>
+        public void Enqueue(Uri input, Uri output, bool immediatelyDownload = true)
+        {
+            var download = new DownloadObject(input, output, immediatelyDownload);
+
+            Enqueue(download);
+        }
+
+        public void Dequeue(DownloadObject obj)
+        {
+            if(obj.Status == DownloadStatus.InProgress)
+                obj.CancellationToken.Cancel();
+
+            Queue.Remove(obj);
+        }
+
+        public void DequeueBySaveDestination(Uri destination)
+        {
+            var download = Queue.FirstOrDefault(x => x.OutputAddress == destination);
+
+            Dequeue(download);
+        }
+
+        public void CancelBySaveDestination(Uri destination)
+        {
+
+        }
+
+        public void CancelAll()
+        {
+
+        }
+
+        /*
         public void Enqueue(String address, String destination, bool autoDownload = true)
         {
             try
@@ -65,6 +119,6 @@ namespace MediaDrip
             {
                 download.RequestCancellation();
             }
-        }
+        }*/
     }
 }
