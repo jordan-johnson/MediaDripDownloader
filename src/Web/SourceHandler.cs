@@ -5,7 +5,7 @@ using MediaDrip.Downloader.Exception;
 
 namespace MediaDrip.Downloader.Web
 {
-    internal sealed class SourceHandler
+    internal sealed class SourceHandler : ISourceHandler
     {
         private List<ISource> _sources;
 
@@ -16,35 +16,18 @@ namespace MediaDrip.Downloader.Web
 
         public void Add(ISource source)
         {
-            // update later to log
             if(source.Client == null)
-            {
-                Console.WriteLine("Source Client is not set. Can't add.");
-
-                return;
-            }
+                throw new NullReferenceException($"Source client null; check source using lookup address {source.LookupAddress.ToString()}");
 
             _sources.Add(source);
         }
 
-        public void ThrowIfLookupFails(Uri address)
-        {
-            if(GetByAddressComparison(address) == null)
-            {
-                throw new SourceNotFoundException(address, $"Address lookup failed {address.ToString()}");
-            }
-        }
-
-        public void Run(Uri address)
+        public void RunSourceFromAddressLookup(Uri address)
         {
             var lookupSource = GetByAddressComparison(address);
 
             if(lookupSource == null)
-            {
-                Console.WriteLine("Can't run source, not found");
-
-                return;
-            }
+                throw new SourceNotFoundException(address, $"Source lookup failed {address.ToString()}");
 
             lookupSource.Run(address);
         }

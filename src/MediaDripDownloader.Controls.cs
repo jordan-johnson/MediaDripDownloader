@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using MediaDrip.Downloader.Web;
+using MediaDrip.Downloader.Queue;
 using MediaDrip.Downloader.Shared;
 using MediaDrip.Downloader.Exception;
 
@@ -10,6 +11,15 @@ namespace MediaDrip
     {
         public void AddSource(ISource source) => _sourceHandler.Add(source);
 
+        public void Enqueue(IQueueable item)
+        {
+        }
+
+        public void Dequeue(IQueueable item)
+        {
+
+        }
+
         /// <summary>
         /// Adds a DownloadObject to queue for processing.
         /// 
@@ -17,12 +27,12 @@ namespace MediaDrip
         /// </summary>
         public void Enqueue(DownloadObject obj)
         {
-            var alreadyInQueue = Queue.FirstOrDefault(x => x.OutputAddress == obj.OutputAddress);
+            var alreadyInQueue = Queue.Items.FirstOrDefault(x => x.OutputAddress == obj.OutputAddress);
 
             if(alreadyInQueue != null)
                 throw new DuplicateDownloadException(alreadyInQueue, obj, "Queued item exists with matching output address.");
 
-            Queue.Add(obj);
+            Queue.Enqueue(obj);
         }
 
         /// <summary>
@@ -43,14 +53,14 @@ namespace MediaDrip
             if(obj.Status == DownloadStatus.InProgress)
                 obj.CancellationToken.Cancel();
 
-            Queue.Remove(obj);
+            //Queue.Dequeue(obj);
         }
 
         public void DequeueBySaveDestination(Uri destination)
         {
-            var download = Queue.FirstOrDefault(x => x.OutputAddress == destination);
+            //var download = Queue.FirstOrDefault(x => x.OutputAddress == destination);
 
-            Dequeue(download);
+            //Dequeue(download);
         }
 
         public void CancelBySaveDestination(Uri destination)

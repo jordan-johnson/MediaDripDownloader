@@ -9,18 +9,18 @@ using MediaDrip.Downloader.Web;
 
 namespace MediaDrip
 {
-    public sealed partial class MediaDripDownloader : IMediaDripDownloader, IQueueItems<DownloadObject>
+    public sealed partial class MediaDripDownloader : ISourceControls, IQueueItems<DownloadObject>
     {
         private bool _isDisposing;
         private SourceHandler _sourceHandler;
 
-        public ObservableCollection<DownloadObject> Queue { get; private set; }
+        public IQueueCollection<DownloadObject> Queue { get; }
 
         public MediaDripDownloader()
         {
             _sourceHandler = new SourceHandler();
 
-            Queue = new ObservableCollection<DownloadObject>();
+            Queue = new DownloadQueue();
         }
 
         ~MediaDripDownloader()
@@ -42,24 +42,9 @@ namespace MediaDrip
                 if(disposing)
                 {
                     Console.WriteLine("dispose");
-
-                    Queue = null;
                 }
 
                 _isDisposing = true;
-            }
-        }
-
-        private void ProcessDownloadObjects(DownloadObject download)
-        {
-            _sourceHandler.Run(download.InputAddress);
-        }
-
-        private void ProcessDownloadObjects(IEnumerable<DownloadObject> downloads)
-        {
-            foreach(var download in downloads)
-            {
-                _sourceHandler.Run(download.InputAddress);
             }
         }
     }
