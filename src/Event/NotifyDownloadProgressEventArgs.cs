@@ -1,5 +1,5 @@
 using System;
-using MediaDrip.Downloader.Shared;
+using MediaDrip.Downloader.Web;
 
 namespace MediaDrip.Downloader.Event
 {

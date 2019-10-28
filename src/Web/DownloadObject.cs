@@ -1,9 +1,8 @@
 using System;
 using System.Threading;
-using MediaDrip.Downloader.Web;
 using MediaDrip.Downloader.Queue;
 
-namespace MediaDrip.Downloader.Shared
+namespace MediaDrip.Downloader.Web
 {
     public class DownloadObject : IWebDownload, IQueueable, IEquatable<DownloadObject>
     {
