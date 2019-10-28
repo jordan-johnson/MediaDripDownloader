@@ -34,9 +34,33 @@ namespace MediaDrip
 
             if(match != null)
             {
-                _queue.Remove(match);
+                SafelyCancelThenRemoveDownload(match);
             }
         }
+
+        /// <summary>
+        /// Removes all downloads from queue. Any active downloads will be canceled.
+        /// </summary>
+        public void DequeueAll()
+        {
+            for(var i = 0; i < _queue.Count; i++)
+            {
+                var download = _queue[i];
+
+                SafelyCancelThenRemoveDownload(download);
+            }
+        }
+
+        // continue working on this
+        //
+        //
+        //
+
+        /// <summary>
+        /// Mirror method for cancellation of a download.
+        /// </summary>
+        /// <param name="download"></param>
+        public void Cancel(IWebDownload download) => download.Cancel();
 
         /// <summary>
         /// Cancel all active downloads
@@ -48,33 +72,6 @@ namespace MediaDrip
             foreach(var download in _queue)
             {
                 download.Cancel();
-            }
-        }
-
-        /// <summary>
-        /// Removes all downloads from queue. Any active downloads will be canceled.
-        /// </summary>
-        public void RemoveAll()
-        {
-            for(var i = 0; i < _queue.Count; i++)
-            {
-                var download = _queue[i];
-
-                SafelyCancelThenRemoveDownload(download);
-            }
-        }
-
-        /// <summary>
-        /// Removes download based on filter criteria. If download is active, it will be canceled.
-        /// </summary>
-        /// <param name="predicate"></param>
-        public void RemoveWhere(Func<IWebDownload, bool> predicate)
-        {
-            var match = _queue.FirstOrDefault(predicate) as DownloadObject;
-
-            if(match != null)
-            {
-                SafelyCancelThenRemoveDownload(match);
             }
         }
     }

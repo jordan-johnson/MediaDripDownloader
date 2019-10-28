@@ -6,5 +6,6 @@ namespace MediaDrip.Downloader.Queue
     {
         void Enqueue(T item);
         void Dequeue(Func<T, bool> predicate);
+        void DequeueAll();
     }
 }

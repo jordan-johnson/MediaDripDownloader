@@ -4,8 +4,7 @@ namespace MediaDrip.Downloader.Web
 {
     public interface IDownloadControls
     {
+        void Cancel(IWebDownload download);
         void CancelAll();
-        void RemoveAll();
-        void RemoveWhere(Func<IWebDownload, bool> predicate);
     }
 }
