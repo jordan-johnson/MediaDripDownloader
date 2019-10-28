@@ -24,11 +24,6 @@ namespace MediaDrip.Downloader.Test
         [Fact]
         public void TestThing()
         {
-            using(var dl = new MediaDripDownloader())
-            {
-                dl.AddSource(_source);
-                dl.Enqueue(_dlAddress, "https://www.google.com");
-            }
         }
     }
 }

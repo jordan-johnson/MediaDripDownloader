@@ -1,6 +1,6 @@
 using System;
 
-namespace MediaDrip.Downloader.Shared
+namespace MediaDrip.Downloader.Web
 {
     public interface IWebDownload
     {
@@ -8,5 +8,8 @@ namespace MediaDrip.Downloader.Shared
         Uri OutputAddress { get; }
         DownloadStatus Status { get; }
         int Progress { get; set; }
+
+        void Cancel();
+        void Cancel(Action callback);
     }
 }

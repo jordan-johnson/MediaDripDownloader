@@ -4,12 +4,9 @@ using MediaDrip.Downloader.Event;
 
 namespace MediaDrip.Downloader.Queue
 {
-    public interface IQueueCollection<T> : INotifyQueueCollectionChanged<T>
+    public interface IQueueCollection<T> : IQueueControls<T>, INotifyQueueCollectionChanged<T>
         where T : IQueueable
     {
         ReadOnlyCollection<T> Items { get; }
-
-        void Enqueue(T item);
-        void Dequeue(Func<T, bool> predicate);
     }
 }

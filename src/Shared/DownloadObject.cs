@@ -1,15 +1,21 @@
 using System;
 using System.Threading;
+using MediaDrip.Downloader.Web;
 using MediaDrip.Downloader.Queue;
 
 namespace MediaDrip.Downloader.Shared
 {
-    public class DownloadObject : IWebDownload, IContainCancellationToken, IQueueable, IEquatable<DownloadObject>
+    public class DownloadObject : IWebDownload, IQueueable, IEquatable<DownloadObject>
     {
         /// <summary>
         /// Download Progress field which is set and validated in the Progress property.
         /// </summary>
         private int _progress;
+
+        /// <summary>
+        /// Cancellation token field which is initialized in constructor.
+        /// </summary>
+        private CancellationTokenSource _cancelToken;  
 
         /// <summary>
         /// File address to be downloaded.
@@ -39,13 +45,6 @@ namespace MediaDrip.Downloader.Shared
         public bool DownloadImmediately { get; set; }
 
         /// <summary>
-        /// Cancellation Token for asynchronous downloading.
-        /// 
-        /// Property is initialized in constructor.
-        /// </summary>
-        public CancellationTokenSource CancellationToken { get; private set; }
-
-        /// <summary>
         /// Current progress (0-100) of download.
         /// </summary>
         /// <value>Progress property gets/sets the value of the _progress field.</value>
@@ -73,7 +72,25 @@ namespace MediaDrip.Downloader.Shared
             OutputAddress = output;
             DownloadImmediately = immediate;
 
-            CancellationToken = new CancellationTokenSource();
+            _cancelToken = new CancellationTokenSource();
+        }
+
+        /// <summary>
+        /// Cancel download
+        /// </summary>
+        public void Cancel()
+        {
+            if(Status != DownloadStatus.InProgress && !_cancelToken.Token.CanBeCanceled)
+                return;
+                
+            _cancelToken.Cancel();
+        }
+
+        public void Cancel(Action callback)
+        {
+            _cancelToken.Token.Register(callback);
+
+            Cancel();
         }
 
         /// <summary>

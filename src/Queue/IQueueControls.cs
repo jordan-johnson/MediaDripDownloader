@@ -1,8 +1,10 @@
+using System;
+
 namespace MediaDrip.Downloader.Queue
 {
-    public interface IQueueControls
+    public interface IQueueControls<T> where T : IQueueable
     {
-        void Enqueue(IQueueable item);
-        void Dequeue(IQueueable item);
+        void Enqueue(T item);
+        void Dequeue(Func<T, bool> predicate);
     }
 }

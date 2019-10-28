@@ -3,7 +3,6 @@ using System.Linq;
 using MediaDrip.Downloader.Web;
 using MediaDrip.Downloader.Queue;
 using MediaDrip.Downloader.Shared;
-using MediaDrip.Downloader.Exception;
 
 namespace MediaDrip
 {
@@ -11,124 +10,72 @@ namespace MediaDrip
     {
         public void AddSource(ISource source) => _sourceHandler.Add(source);
 
-        public void Enqueue(IQueueable item)
+        /// <summary>
+        /// Enqueue a DownloadObject.
+        /// </summary>
+        /// <param name="item"></param>
+        public void Enqueue(DownloadObject item)
         {
-        }
+            var match = _queue.FirstOrDefault(x => x.OutputAddress == item.OutputAddress);
 
-        public void Dequeue(IQueueable item)
-        {
-
+            if(match == null)
+            {
+                _queue.Add(item);
+            }
         }
 
         /// <summary>
-        /// Adds a DownloadObject to queue for processing.
+        /// Dequeues a DownloadObject based on filter criteria.
+        /// </summary>
+        /// <param name="predicate"></param>
+        public void Dequeue(Func<DownloadObject, bool> predicate)
+        {
+            var match = _queue.FirstOrDefault(predicate);
+
+            if(match != null)
+            {
+                _queue.Remove(match);
+            }
+        }
+
+        /// <summary>
+        /// Cancel all active downloads
         /// 
-        /// Throws DuplicateDownloadException if queue contains an object with a matching output address.
+        /// DownloadObject's Cancel method checks if the download is in progress before canceling.
         /// </summary>
-        public void Enqueue(DownloadObject obj)
-        {
-            var alreadyInQueue = Queue.Items.FirstOrDefault(x => x.OutputAddress == obj.OutputAddress);
-
-            if(alreadyInQueue != null)
-                throw new DuplicateDownloadException(alreadyInQueue, obj, "Queued item exists with matching output address.");
-
-            Queue.Enqueue(obj);
-        }
-
-        /// <summary>
-        /// Creates a DownloadObject and adds it to the queue for processing.
-        /// </summary>
-        /// <param name="input">File address to be downloaded.</param>
-        /// <param name="output">Save destination.</param>
-        /// <param name="immediatelyDownload">Automatically process once in queue?</param>
-        public void Enqueue(Uri input, Uri output, bool immediatelyDownload = true)
-        {
-            var download = new DownloadObject(input, output, immediatelyDownload);
-
-            Enqueue(download);
-        }
-
-        public void Dequeue(DownloadObject obj)
-        {
-            if(obj.Status == DownloadStatus.InProgress)
-                obj.CancellationToken.Cancel();
-
-            //Queue.Dequeue(obj);
-        }
-
-        public void DequeueBySaveDestination(Uri destination)
-        {
-            //var download = Queue.FirstOrDefault(x => x.OutputAddress == destination);
-
-            //Dequeue(download);
-        }
-
-        public void CancelBySaveDestination(Uri destination)
-        {
-
-        }
-
-        public void CancelAll()
-        {
-
-        }
-
-        /*
-        public void Enqueue(String address, String destination, bool autoDownload = true)
-        {
-            try
-            {
-                var addrUri = new Uri(address);
-                var destUri = new Uri(destination);
-
-                _sourceHandler.ThrowIfLookupFails(addrUri);
-
-                var download = new DownloadObject(addrUri, destUri, autoDownload);
-
-                ThrowIfDuplicateQueuedItem(download);
-
-                _queue.Add(download);
-            }
-            catch(UriFormatException)
-            {
-                // log
-                Console.WriteLine("address oops");
-            }
-        }
-
-        public void ForceStart(DownloadObject download)
-        {
-            ProcessDownloadObjects(download);
-        }
-
-        public void ForceStartAll()
-        {
-            var filterByManualDownload = _queue.Where(x => !x.AutoDownload);
-
-            ProcessDownloadObjects(filterByManualDownload);
-        }
-
-        public void CancelBySaveDestination(String destination)
-        {
-            try
-            {
-                var destUri = new Uri(destination);
-                var lookup = _queue.FirstOrDefault(x => x.SaveDestination == destUri);
-                
-                lookup?.RequestCancellation();
-            }
-            catch(UriFormatException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-        }
-
         public void CancelAll()
         {
             foreach(var download in _queue)
             {
-                download.RequestCancellation();
+                download.Cancel();
             }
-        }*/
+        }
+
+        /// <summary>
+        /// Removes all downloads from queue. Any active downloads will be canceled.
+        /// </summary>
+        public void RemoveAll()
+        {
+            for(var i = 0; i < _queue.Count; i++)
+            {
+                var download = _queue[i];
+
+                SafelyCancelThenRemoveDownload(download);
+            }
+        }
+
+        /// <summary>
+        /// Removes download based on filter criteria. If download is active, it will be canceled.
+        /// </summary>
+        /// <param name="predicate"></param>
+        public void RemoveWhere(Func<IWebDownload, bool> predicate)
+        {
+            var match = _queue.FirstOrDefault(predicate) as DownloadObject;
+
+            if(match != null)
+            {
+                SafelyCancelThenRemoveDownload(match);
+            }
+        }
     }
 }

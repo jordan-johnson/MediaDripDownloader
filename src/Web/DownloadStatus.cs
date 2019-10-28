@@ -1,4 +1,4 @@
-namespace MediaDrip.Downloader.Shared
+namespace MediaDrip.Downloader.Web
 {
     public enum DownloadStatus
     {

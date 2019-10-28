@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using MediaDrip.Downloader.Exception;
 
 namespace MediaDrip.Downloader.Web
 {
@@ -26,10 +25,7 @@ namespace MediaDrip.Downloader.Web
         {
             var lookupSource = GetByAddressComparison(address);
 
-            if(lookupSource == null)
-                throw new SourceNotFoundException(address, $"Source lookup failed {address.ToString()}");
-
-            lookupSource.Run(address);
+            lookupSource?.Run(address);
         }
 
         private ISource GetByAddressComparison(Uri address)
