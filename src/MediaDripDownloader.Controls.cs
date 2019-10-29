@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
 using MediaDrip.Downloader.Web;
-using MediaDrip.Downloader.Queue;
-using MediaDrip.Downloader.Shared;
 
 namespace MediaDrip
 {

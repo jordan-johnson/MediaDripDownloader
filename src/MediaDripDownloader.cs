@@ -3,16 +3,15 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
-using MediaDrip.Downloader.Shared;
+using MediaDrip.Downloader.Web;
 using MediaDrip.Downloader.Event;
 using MediaDrip.Downloader.Queue;
-using MediaDrip.Downloader.Web;
+using MediaDrip.Downloader.Shared;
 
 namespace MediaDrip
 {
-    public sealed partial class MediaDripDownloader : IDownloadControls, ISourceControls, IQueueCollection<DownloadObject>
+    public sealed partial class MediaDripDownloader : DisposableObject, IDownloadControls, ISourceControls, IQueueCollection<DownloadObject>
     {
-        private bool _isDisposing;
         private SourceHandler _sourceHandler;
         private ObservableCollection<DownloadObject> _queue;
 
@@ -39,45 +38,16 @@ namespace MediaDrip
             _queue.CollectionChanged += OnCollectionChange_Event;
         }
 
-        /// <summary>
-        /// Destructor to indicate 
-        /// </summary>
-        ~MediaDripDownloader()
+        protected override void DisposeManagedResources()
         {
-            Dispose(disposing: false);
+            Console.WriteLine("disposing managed");
         }
 
-        /// <summary>
-        /// Dispose of MediaDripDownloader and all of its underlying services.
-        /// </summary>
-        public void Dispose()
+        protected override void DisposeUnmanagedResources()
         {
-            Dispose(disposing: true);
+            Console.WriteLine("disposing unmanaged");
 
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// The internal dispose method for the dispose pattern.
-        /// 
-        /// This method is for directly cleaning up events and other active services. All current downloads will be canceled.
-        /// </summary>
-        /// <param name="disposing"></param>
-        private void Dispose(bool disposing)
-        {
-            if(!_isDisposing)
-            {
-                if(disposing)
-                {
-                    Console.WriteLine("disposing managed");
-                }
-
-                Console.WriteLine("disposing unmanaged");
-
-                UnsubscribeEventListeners();
-
-                _isDisposing = true;
-            }
+            UnsubscribeEventListeners();
         }
 
         /// <summary>
@@ -87,9 +57,12 @@ namespace MediaDrip
         {
             _queue.CollectionChanged -= OnCollectionChange_Event;
 
-            foreach(var subscriber in OnCollectionChanged?.GetInvocationList())
+            if(OnCollectionChanged != null)
             {
-                OnCollectionChanged -= (subscriber as QueueCollectionEventHandler<DownloadObject>);
+                foreach(var subscriber in OnCollectionChanged.GetInvocationList())
+                {
+                    OnCollectionChanged -= (subscriber as QueueCollectionEventHandler<DownloadObject>);
+                }
             }
         }
 

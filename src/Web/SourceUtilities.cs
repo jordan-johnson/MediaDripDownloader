@@ -4,13 +4,12 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using MediaDrip.Downloader.Shared;
 
 namespace MediaDrip.Downloader.Web
 {
-    public abstract class SourceUtilities : ISource, IDisposable
+    public abstract class SourceUtilities : DisposableObject, ISource
     {
-        private bool _isDisposing;
-
         public abstract Uri LookupAddress { get; }
 
         public HttpClient Client { get; private set; }
@@ -25,33 +24,22 @@ namespace MediaDrip.Downloader.Web
             Dispose(disposing: false);
         }
 
-        public abstract Task<Uri> Run(Uri initialAddress);
+        public abstract Task<Uri> RunAsync(Uri initialAddress);
 
-        public void Dispose()
+        protected override void DisposeManagedResources()
         {
-            Dispose(disposing: true);
+            Console.WriteLine("disposing client source");
 
-            GC.SuppressFinalize(this);
+            Client.Dispose();
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if(_isDisposing)
-            {
-                if(disposing)
-                {
-                    Console.WriteLine("disposing source");
-
-                    Client.Dispose();
-                }
-            }
-        }
+        protected override void DisposeUnmanagedResources() {}
 
         protected async Task<T> DownloadAsJSONObjectAsync<T>(Uri address, CancellationToken token = default(CancellationToken))
         {
             var response = await Client.GetAsync(address, token).ConfigureAwait(false);
 
-            return await TryProcessingResponse<T>(response,
+            return await TryProcessingResponseAsync<T>(response,
                 async () =>
                 {
                     var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -67,7 +55,7 @@ namespace MediaDrip.Downloader.Web
             var destinationAsString = destination.ToString();
             var response = await Client.GetAsync(address, token).ConfigureAwait(false);
 
-            return await TryProcessingResponse<bool>(response,
+            return await TryProcessingResponseAsync<bool>(response,
                 async () =>
                 {
                     var stream = new FileStream(destinationAsString, FileMode.Create, FileAccess.Write, FileShare.None);
@@ -94,7 +82,7 @@ namespace MediaDrip.Downloader.Web
         /// <param name="token">Cancellation token. </param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private async Task<T> TryProcessingResponse<T>(HttpResponseMessage response, Func<Task<T>> continuation, CancellationToken token = default(CancellationToken))
+        private async Task<T> TryProcessingResponseAsync<T>(HttpResponseMessage response, Func<Task<T>> continuation, CancellationToken token = default(CancellationToken))
         {
             try
             {

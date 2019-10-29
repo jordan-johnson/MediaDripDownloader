@@ -20,7 +20,7 @@ namespace MediaDrip.Downloader.Test
 
         public SoundCloudSource() : base() {}
 
-        public override async Task<Uri> Run(Uri initialAddress)
+        public override async Task<Uri> RunAsync(Uri initialAddress)
         {
             var jsonAddress = BuildSoundCloudAddress(initialAddress.ToString());
             var task = await DownloadAsJSONObjectAsync<SoundCloudTrack>(jsonAddress);

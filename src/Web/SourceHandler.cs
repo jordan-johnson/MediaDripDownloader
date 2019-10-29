@@ -25,7 +25,7 @@ namespace MediaDrip.Downloader.Web
         {
             var lookupSource = GetByAddressComparison(address);
 
-            lookupSource?.Run(address);
+            lookupSource?.RunAsync(address);
         }
 
         private ISource GetByAddressComparison(Uri address)

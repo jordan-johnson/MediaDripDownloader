@@ -9,6 +9,6 @@ namespace MediaDrip.Downloader.Web
         Uri LookupAddress { get; }
         HttpClient Client { get; }
 
-        Task<Uri> Run(Uri address);
+        Task<Uri> RunAsync(Uri address);
     }
 }
