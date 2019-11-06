@@ -10,18 +10,13 @@ namespace MediaDrip.Downloader.Web
 {
     public abstract class SourceUtilities : DisposableObject, ISource
     {
-        public abstract Uri LookupAddress { get; }
-
         public HttpClient Client { get; private set; }
+
+        public abstract Uri LookupAddress { get; }
 
         public SourceUtilities()
         {
             Client = new HttpClient();
-        }
-
-        ~SourceUtilities()
-        {
-            Dispose(disposing: false);
         }
 
         public abstract Task<Uri> RunAsync(Uri initialAddress);
@@ -74,12 +69,11 @@ namespace MediaDrip.Downloader.Web
         }
 
         /// <summary>
-        /// Try/catch method for handling CancellationToken and HttpRequest
-        /// exceptions. 
+        /// Try/catch method for handling CancellationToken and HttpRequest exceptions.
         /// </summary>
         /// <param name="response"></param>
         /// <param name="continuation">Delegate parameter for async processing.</param>
-        /// <param name="token">Cancellation token. </param>
+        /// <param name="token">Cancellation token.</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         private async Task<T> TryProcessingResponseAsync<T>(HttpResponseMessage response, Func<Task<T>> continuation, CancellationToken token = default(CancellationToken))

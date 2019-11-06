@@ -12,6 +12,8 @@ namespace MediaDrip.Downloader.Test
     {
         private Uri _testAddress = new Uri("https://www.google.com");
 
+        private bool _eventFired;
+
         /// <summary>
         /// Asserts that MediaDripDownloader is disposable, and that it has been disposed automatically after the using block.
         /// </summary>
@@ -56,12 +58,14 @@ namespace MediaDrip.Downloader.Test
             downloader.Dispose();
 
             Assert.True(downloader.IsDisposalRequested);
-            //Assert.True(downloader.OnCollectionChanged == null);
+            Assert.True(_eventFired);
         }
 
         private void OnQueueChanged_Event(object sender, QueueCollectionChangedEventArgs<DownloadObject> e)
         {
             Assert.True(e.EnqueuedItems != null || e.DequeuedItems != null);
+
+            _eventFired = true;
         }
     }
 }

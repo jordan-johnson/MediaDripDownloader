@@ -23,6 +23,31 @@ namespace MediaDrip
         }
 
         /// <summary>
+        /// Create a DownloadObject that doesn't save to disk then enqueue.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="immediate"></param>
+        public void Enqueue(Uri input, bool immediate = true)
+        {
+            var downloadObject = new DownloadObject(input, null, immediate);
+
+            Enqueue(downloadObject);
+        }
+
+        /// <summary>
+        /// Create a DownloadObject that saves to disk then equeue.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="output"></param>
+        /// <param name="immediate"></param>
+        public void Enqueue(Uri input, Uri output, bool immediate = true)
+        {
+            var downloadObject = new DownloadObject(input, output, immediate);
+
+            Enqueue(downloadObject);
+        }
+
+        /// <summary>
         /// Dequeues a DownloadObject based on filter criteria.
         /// </summary>
         /// <param name="predicate"></param>

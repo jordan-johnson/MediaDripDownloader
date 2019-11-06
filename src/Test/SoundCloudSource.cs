@@ -19,6 +19,8 @@ namespace MediaDrip.Downloader.Test
         public override Uri LookupAddress => new Uri("https://www.soundcloud.com");
 
         public SoundCloudSource() : base() {}
+        
+        protected override void DisposeUnmanagedResources(){}
 
         public override async Task<Uri> RunAsync(Uri initialAddress)
         {
