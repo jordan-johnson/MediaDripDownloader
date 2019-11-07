@@ -82,25 +82,6 @@ namespace MediaDrip
         }
 
         /// <summary>
-        /// Checks download's status to determine if download needs to be canceled.
-        /// 
-        /// If download is 
-        /// </summary>
-        /// <param name="download"></param>
-        private void SafelyCancelThenRemoveDownload(DownloadObject download)
-        {
-            if(download.Status == DownloadStatus.InProgress)
-            {
-                // registers a callback with CancellationTokenSource to be executed when canceled
-                download.Cancel(() => _queue.Remove(download));
-            }
-            else
-            {
-                _queue.Remove(download);
-            }
-        }
-
-        /// <summary>
         /// Invokes OnCollectionChanged event when ObservableCollection's event is invoked.
         /// </summary>
         /// <param name="sender"></param>

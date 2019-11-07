@@ -129,5 +129,22 @@ namespace MediaDrip
                 download.Cancel();
             }
         }
+
+        /// <summary>
+        /// Checks the download's status to determine if it needs to be canceled before removing it from queue.
+        /// </summary>
+        /// <param name="download"></param>
+        private void SafelyCancelThenRemoveDownload(DownloadObject download)
+        {
+            if(download.Status == DownloadStatus.InProgress)
+            {
+                // registers a callback with CancellationTokenSource to be executed when canceled
+                download.Cancel(() => _queue.Remove(download));
+            }
+            else
+            {
+                _queue.Remove(download);
+            }
+        }
     }
 }
