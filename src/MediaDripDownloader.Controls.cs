@@ -6,10 +6,14 @@ namespace MediaDrip
 {
     public sealed partial class MediaDripDownloader
     {
+        /// <summary>
+        /// Add source to handler for processing expected DownloadObjects.
+        /// </summary>
+        /// <param name="source"></param>
         public void AddSource(ISource source) => _sourceHandler.Add(source);
 
         /// <summary>
-        /// Enqueue a DownloadObject.
+        /// Add a DownloadObject to queue.
         /// </summary>
         /// <param name="item"></param>
         public void Enqueue(DownloadObject item)
@@ -48,7 +52,7 @@ namespace MediaDrip
         }
 
         /// <summary>
-        /// Dequeues a DownloadObject based on filter criteria.
+        /// Dequeues a single DownloadObject based on filter criteria.
         /// </summary>
         /// <param name="predicate"></param>
         public void Dequeue(Func<DownloadObject, bool> predicate)
@@ -74,13 +78,30 @@ namespace MediaDrip
             }
         }
 
-        // continue working on this
-        //
-        //
-        //
+        /// <summary>
+        /// Dequeue all DownloadObjects based on filter criteria.
+        /// </summary>
+        /// <param name="predicate"></param>
+        public void DequeueAllWhere(Func<DownloadObject, bool> predicate)
+        {
+            var matches = _queue.Where(predicate);
+
+            foreach(var download in matches)
+            {
+                SafelyCancelThenRemoveDownload(download);
+            }
+        }
 
         /// <summary>
-        /// Mirror method for cancellation of a download.
+        /// Dequeue all DownloadObjects with a canceled status.
+        /// </summary>
+        public void DequeueCanceledDownloads()
+        {
+            DequeueAllWhere(x => x.Status == DownloadStatus.Canceled);
+        }
+
+        /// <summary>
+        /// Cancel a DownloadObject but do not remove from queue.
         /// </summary>
         /// <param name="download"></param>
         public void Cancel(IWebDownload download) => download.Cancel();

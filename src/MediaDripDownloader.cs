@@ -12,7 +12,16 @@ namespace MediaDrip
 {
     public sealed partial class MediaDripDownloader : DisposableObject, IDownloadControls, ISourceControls, IQueueCollection<DownloadObject>
     {
+        /// <summary>
+        /// Repository of sources for processing DownloadObjects.
+        /// </summary>
         private SourceHandler _sourceHandler;
+
+        /// <summary>
+        /// Queue of DownloadObjects.
+        /// 
+        /// OnCollectionChanged event is a wrapper for handling changes to this collection.
+        /// </summary>
         private ObservableCollection<DownloadObject> _queue;
 
         /// <summary>
@@ -38,11 +47,17 @@ namespace MediaDrip
             _queue.CollectionChanged += OnCollectionChange_Event;
         }
 
+        /// <summary>
+        /// Dispose of objects that inherit IDisposable in this method.
+        /// </summary>
         protected override void DisposeManagedResources()
         {
             Console.WriteLine("disposing managed");
         }
 
+        /// <summary>
+        /// Dispose of unmanaged resources (i.e. events) in this method.
+        /// </summary>
         protected override void DisposeUnmanagedResources()
         {
             Console.WriteLine("disposing unmanaged");
@@ -95,8 +110,14 @@ namespace MediaDrip
             var newItems = new List<DownloadObject>();
             var oldItems = new List<DownloadObject>();
 
-            if(e.NewItems != null)
+            if(e.NewItems != null) {
                 newItems = CastToList(e.NewItems);
+
+                foreach(var download in newItems.Where(x => x.DownloadImmediately))
+                {
+                    _sourceHandler.RunSourceFromAddressLookup(download.InputAddress);
+                }
+            }
 
             if(e.OldItems != null)
                 oldItems = CastToList(e.OldItems);

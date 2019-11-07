@@ -34,12 +34,7 @@ namespace MediaDrip.Downloader.Test
 
             public override async Task<Uri> RunAsync(Uri initialAddress)
             {
-                switch(_expectedReturnType)
-                {
-                    case ExpectedDownloadReturnType.AsJson:
-                        var  DownloadAsJSONObjectAsync();
-                    break;
-                }
+                
             }
         }
 
