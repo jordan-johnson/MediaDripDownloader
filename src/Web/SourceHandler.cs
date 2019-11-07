@@ -21,6 +21,11 @@ namespace MediaDrip.Downloader.Web
             _sources.Add(source);
         }
 
+        public bool SourceExistsByAddressMatch(Uri address)
+        {
+            return GetByAddressComparison(address) != null;
+        }
+
         public void RunSourceFromAddressLookup(Uri address)
         {
             var lookupSource = GetByAddressComparison(address);

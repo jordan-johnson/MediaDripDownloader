@@ -20,6 +20,7 @@ namespace MediaDrip.Downloader.Test
             AsJson
         }
 
+        /*
         public class BasicSourceTest : SourceUtilities
         {
 
@@ -36,16 +37,16 @@ namespace MediaDrip.Downloader.Test
             {
                 
             }
-        }
+        }*/
 
         [Fact]
         public void EnqueueDownloadConvertToJSONObjectPassingTest()
         {
             var jsonTest = new Uri("http://echo.jsontest.com/testKey/testValue/testKey2/testValue2/");
             var downloader = new MediaDripDownloader();
-            var source = new BasicSourceTest(ExpectedDownloadReturnType.AsJson);
+            //var source = new BasicSourceTest(ExpectedDownloadReturnType.AsJson);
 
-            downloader.AddSource(source);
+            //downloader.AddSource(source);
 
             // the output is useless since we're only passing the data into an object
             // so we'll just pass the input address to the output

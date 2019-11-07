@@ -18,11 +18,22 @@ namespace MediaDrip
         /// <param name="item"></param>
         public void Enqueue(DownloadObject item)
         {
-            var match = _queue.FirstOrDefault(x => x.OutputAddress == item.OutputAddress);
-
-            if(match == null)
+            if(_sourceHandler.SourceExistsByAddressMatch(item.InputAddress))
             {
-                _queue.Add(item);
+                var match = _queue.FirstOrDefault(x => x.OutputAddress == item.OutputAddress);
+
+                if(match == null)
+                {
+                    _queue.Add(item);
+                }
+                else
+                {
+                    item.SetError(DownloadErrorType.DuplicateInQueue);
+                }
+            }
+            else
+            {
+                item.SetError(DownloadErrorType.SourceNotFound);
             }
         }
 
@@ -39,7 +50,7 @@ namespace MediaDrip
         }
 
         /// <summary>
-        /// Create a DownloadObject that saves to disk then equeue.
+        /// Create a DownloadObject that saves to disk then enqueue.
         /// </summary>
         /// <param name="input"></param>
         /// <param name="output"></param>
@@ -52,7 +63,7 @@ namespace MediaDrip
         }
 
         /// <summary>
-        /// Dequeues a single DownloadObject based on filter criteria.
+        /// Dequeues a single DownloadObject based on filter criteria. If the download is active, it will be canceled.
         /// </summary>
         /// <param name="predicate"></param>
         public void Dequeue(Func<DownloadObject, bool> predicate)
@@ -79,7 +90,7 @@ namespace MediaDrip
         }
 
         /// <summary>
-        /// Dequeue all DownloadObjects based on filter criteria.
+        /// Dequeue all DownloadObjects based on filter criteria. Any active downloads will be canceled.
         /// </summary>
         /// <param name="predicate"></param>
         public void DequeueAllWhere(Func<DownloadObject, bool> predicate)
@@ -107,7 +118,7 @@ namespace MediaDrip
         public void Cancel(IWebDownload download) => download.Cancel();
 
         /// <summary>
-        /// Cancel all active downloads
+        /// Cancel all active downloads.
         /// 
         /// DownloadObject's Cancel method checks if the download is in progress before canceling.
         /// </summary>

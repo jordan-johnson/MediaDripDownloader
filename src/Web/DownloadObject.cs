@@ -39,6 +39,11 @@ namespace MediaDrip.Downloader.Web
         public DownloadStatus Status { get; private set; }
 
         /// <summary>
+        /// Useful for determining if something went wrong with the download.
+        /// </summary>
+        public DownloadErrorType Error { get; private set; }
+
+        /// <summary>
         /// Flag to determine if DownloadObject will be processed as soon as it's queued.
         /// </summary>
         public bool DownloadImmediately { get; set; }
@@ -52,9 +57,23 @@ namespace MediaDrip.Downloader.Web
             get => _progress;
             set
             {
+                // value is between 0-100
                 if(value >= 0 && value <= 100)
                 {
+                    if(value > 0 && value < 100)
+                    {
+                        Status = DownloadStatus.InProgress;
+                    }
+                    else if(value == 100)
+                    {
+                        Status = DownloadStatus.Success;
+                    }
+
                     _progress = value;
+                }
+                else
+                {
+                    SetError(DownloadErrorType.ProgressOutOfRange);
                 }
             }
         }
@@ -74,6 +93,16 @@ namespace MediaDrip.Downloader.Web
             _cancelToken = new CancellationTokenSource();
         }
 
+        public void SetError(DownloadErrorType type)
+        {
+            if(Status != DownloadStatus.Error)
+            {
+                Status = DownloadStatus.Error;
+
+                Error = type;
+            }
+        }
+
         /// <summary>
         /// Cancel download
         /// </summary>
@@ -81,10 +110,16 @@ namespace MediaDrip.Downloader.Web
         {
             if(Status != DownloadStatus.InProgress && !_cancelToken.Token.CanBeCanceled)
                 return;
+
+            Status = DownloadStatus.Canceled;
                 
             _cancelToken.Cancel();
         }
 
+        /// <summary>
+        /// Register a callback before cancelling the download.
+        /// </summary>
+        /// <param name="callback"></param>
         public void Cancel(Action callback)
         {
             _cancelToken.Token.Register(callback);
