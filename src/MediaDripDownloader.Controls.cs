@@ -42,9 +42,9 @@ namespace MediaDrip
         /// </summary>
         /// <param name="input"></param>
         /// <param name="immediate"></param>
-        public void Enqueue(Uri input, bool immediate = true)
+        public void Enqueue(Uri input, DownloadOptions options = null)
         {
-            var downloadObject = new DownloadObject(input, null, immediate);
+            var downloadObject = new DownloadObject(input, null, options);
 
             Enqueue(downloadObject);
         }
@@ -55,9 +55,9 @@ namespace MediaDrip
         /// <param name="input"></param>
         /// <param name="output"></param>
         /// <param name="immediate"></param>
-        public void Enqueue(Uri input, Uri output, bool immediate = true)
+        public void Enqueue(Uri input, Uri output, DownloadOptions options = null)
         {
-            var downloadObject = new DownloadObject(input, output, immediate);
+            var downloadObject = new DownloadObject(input, output, options);
 
             Enqueue(downloadObject);
         }

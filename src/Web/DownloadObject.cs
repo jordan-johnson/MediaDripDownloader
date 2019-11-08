@@ -44,9 +44,10 @@ namespace MediaDrip.Downloader.Web
         public DownloadErrorType Error { get; private set; }
 
         /// <summary>
-        /// Flag to determine if DownloadObject will be processed as soon as it's queued.
+        /// Download options for things like overwriting existing files, downloading immediately, etc.
         /// </summary>
-        public bool DownloadImmediately { get; set; }
+        /// <value></value>
+        public DownloadOptions Options { get; private set; }
 
         /// <summary>
         /// Current progress (0-100) of download.
@@ -84,15 +85,21 @@ namespace MediaDrip.Downloader.Web
         /// <param name="input"></param>
         /// <param name="output"></param>
         /// <param name="immediate"></param>
-        public DownloadObject(Uri input, Uri output, bool immediate = true)
+        public DownloadObject(Uri input, Uri output, DownloadOptions options = null)
         {
             InputAddress = input;
             OutputAddress = output;
-            DownloadImmediately = immediate;
+            Options = options ?? new DownloadOptions().UseDefaults();
 
             _cancelToken = new CancellationTokenSource();
         }
 
+        /// <summary>
+        /// Set error status and assign error type.
+        /// 
+        /// If error is already set, it will not be overwritten.
+        /// </summary>
+        /// <param name="type"></param>
         public void SetError(DownloadErrorType type)
         {
             if(Status != DownloadStatus.Error)

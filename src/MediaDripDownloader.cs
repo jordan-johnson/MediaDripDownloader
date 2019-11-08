@@ -94,7 +94,7 @@ namespace MediaDrip
             if(e.NewItems != null) {
                 newItems = CastToList(e.NewItems);
 
-                foreach(var download in newItems.Where(x => x.DownloadImmediately))
+                foreach(var download in newItems.Where(x => x.Options.DownloadImmediately))
                 {
                     _sourceHandler.RunSourceFromAddressLookup(download.InputAddress);
                 }
