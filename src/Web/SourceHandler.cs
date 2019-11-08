@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MediaDrip.Downloader.Web
 {
-    internal sealed class SourceHandler : ISourceHandler
+    internal sealed class SourceHandler : ISourceControls
     {
         private List<ISource> _sources;
 
@@ -13,7 +13,7 @@ namespace MediaDrip.Downloader.Web
             _sources = new List<ISource>();
         }
 
-        public void Add(ISource source)
+        public void AddSource(ISource source)
         {
             if(source.Client == null)
                 throw new NullReferenceException($"Source client null; check source using lookup address {source.LookupAddress.ToString()}");

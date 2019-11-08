@@ -41,7 +41,7 @@ namespace MediaDrip.Downloader.Web
         /// <summary>
         /// Useful for determining if something went wrong with the download.
         /// </summary>
-        public DownloadErrorType Error { get; private set; }
+        public DownloadErrorType ErrorType { get; private set; }
 
         /// <summary>
         /// Download options for things like overwriting existing files, downloading immediately, etc.
@@ -80,11 +80,11 @@ namespace MediaDrip.Downloader.Web
         }
 
         /// <summary>
-        /// 
+        /// Constructs an object representing information on a download.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="output"></param>
-        /// <param name="immediate"></param>
+        /// <param name="input">URI input address/file to download.</param>
+        /// <param name="output">URI output address/save destination.</param>
+        /// <param name="options">Download options for determining if the file should be downloaded immediately, should it overwrite existing files, etc.</param>
         public DownloadObject(Uri input, Uri output, DownloadOptions options = null)
         {
             InputAddress = input;
@@ -106,7 +106,7 @@ namespace MediaDrip.Downloader.Web
             {
                 Status = DownloadStatus.Error;
 
-                Error = type;
+                ErrorType = type;
             }
         }
 

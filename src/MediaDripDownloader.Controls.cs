@@ -10,7 +10,7 @@ namespace MediaDrip
         /// Add source to handler for processing expected DownloadObjects.
         /// </summary>
         /// <param name="source"></param>
-        public void AddSource(ISource source) => _sourceHandler.Add(source);
+        public void AddSource(ISource source) => _sourceHandler.AddSource(source);
 
         /// <summary>
         /// Add a DownloadObject to queue.
