@@ -62,6 +62,11 @@ namespace MediaDrip
         {
             Console.WriteLine("disposing unmanaged");
 
+            if(_queue != null)
+            {
+                DequeueAll();
+            }
+
             UnsubscribeEventListeners();
         }
 
@@ -91,7 +96,8 @@ namespace MediaDrip
             var newItems = new List<DownloadObject>();
             var oldItems = new List<DownloadObject>();
 
-            if(e.NewItems != null) {
+            if(e.NewItems != null)
+            {
                 newItems = CastToList(e.NewItems);
 
                 foreach(var download in newItems.Where(x => x.Options.DownloadImmediately))

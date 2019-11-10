@@ -9,13 +9,21 @@ namespace MediaDrip
         /// <summary>
         /// Add source to handler for processing expected DownloadObjects.
         /// </summary>
-        /// <param name="source"></param>
         public void AddSource(ISource source) => _sourceHandler.AddSource(source);
+
+        /// <summary>
+        /// Remove source from handler using filter criteria.
+        /// </summary>
+        public void RemoveSource(Func<ISource, bool> predicate) => _sourceHandler.RemoveSource(predicate);
+
+        /// <summary>
+        /// Retrieve source from handler using filter criteria.
+        /// </summary>
+        public ISource GetSource(Func<ISource, bool> predicate) => _sourceHandler.GetSource(predicate);
 
         /// <summary>
         /// Add a DownloadObject to queue.
         /// </summary>
-        /// <param name="item"></param>
         public void Enqueue(DownloadObject item)
         {
             if(_sourceHandler.SourceExistsByAddressMatch(item.InputAddress))
@@ -40,32 +48,30 @@ namespace MediaDrip
         /// <summary>
         /// Create a DownloadObject that doesn't save to disk then enqueue.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="immediate"></param>
-        public void Enqueue(Uri input, DownloadOptions options = null)
+        public DownloadObject Enqueue(Uri input, DownloadOptions options = null)
         {
             var downloadObject = new DownloadObject(input, null, options);
 
             Enqueue(downloadObject);
+
+            return downloadObject;
         }
 
         /// <summary>
         /// Create a DownloadObject that saves to disk then enqueue.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="output"></param>
-        /// <param name="immediate"></param>
-        public void Enqueue(Uri input, Uri output, DownloadOptions options = null)
+        public DownloadObject Enqueue(Uri input, Uri output, DownloadOptions options = null)
         {
             var downloadObject = new DownloadObject(input, output, options);
 
             Enqueue(downloadObject);
+
+            return downloadObject;
         }
 
         /// <summary>
         /// Dequeues a single DownloadObject based on filter criteria. If the download is active, it will be canceled.
         /// </summary>
-        /// <param name="predicate"></param>
         public void Dequeue(Func<DownloadObject, bool> predicate)
         {
             var match = _queue.FirstOrDefault(predicate);
@@ -92,7 +98,6 @@ namespace MediaDrip
         /// <summary>
         /// Dequeue all DownloadObjects based on filter criteria. Any active downloads will be canceled.
         /// </summary>
-        /// <param name="predicate"></param>
         public void DequeueAllWhere(Func<DownloadObject, bool> predicate)
         {
             var matches = _queue.Where(predicate);
@@ -114,11 +119,10 @@ namespace MediaDrip
         /// <summary>
         /// Cancel a DownloadObject but do not remove from queue.
         /// </summary>
-        /// <param name="download"></param>
         public void Cancel(IWebDownload download) => download.Cancel();
 
         /// <summary>
-        /// Cancel all active downloads.
+        /// Cancel all active downloads but do not remove from queue.
         /// 
         /// DownloadObject's Cancel method checks if the download is in progress before canceling.
         /// </summary>
@@ -133,7 +137,6 @@ namespace MediaDrip
         /// <summary>
         /// Checks the download's status to determine if it needs to be canceled before removing it from queue.
         /// </summary>
-        /// <param name="download"></param>
         private void SafelyCancelThenRemoveDownload(DownloadObject download)
         {
             if(download.Status == DownloadStatus.InProgress)

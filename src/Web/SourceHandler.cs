@@ -18,7 +18,27 @@ namespace MediaDrip.Downloader.Web
             if(source.Client == null)
                 throw new NullReferenceException($"Source client null; check source using lookup address {source.LookupAddress.ToString()}");
 
-            _sources.Add(source);
+            var check = GetByAddressComparison(source.LookupAddress);
+
+            if(check == null)
+            {
+                _sources.Add(source);
+            }
+        }
+
+        public void RemoveSource(Func<ISource, bool> predicate)
+        {
+            var source = GetSource(predicate);
+
+            if(source != null)
+            {
+                _sources.Remove(source);
+            }
+        }
+
+        public ISource GetSource(Func<ISource, bool> predicate)
+        {
+            return _sources.FirstOrDefault(predicate);
         }
 
         public bool SourceExistsByAddressMatch(Uri address)

@@ -12,7 +12,6 @@ namespace MediaDrip.Downloader.Web
     public enum DownloadErrorType
     {
         None = 0,
-        Unknown,
         ProgressOutOfRange,
         SourceNotFound,
         DuplicateInQueue

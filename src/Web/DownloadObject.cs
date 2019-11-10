@@ -14,29 +14,39 @@ namespace MediaDrip.Downloader.Web
         /// <summary>
         /// Cancellation token field which is initialized in constructor.
         /// </summary>
-        private CancellationTokenSource _cancelToken;  
+        private CancellationTokenSource _cancelToken;
+
+        /// <summary>
+        /// Download status field which is set and validated in the Status property.
+        /// </summary>
+        private DownloadStatus _status;
 
         /// <summary>
         /// File address to be downloaded.
-        /// 
-        /// Property is initialized in the constructor.
         /// </summary>
         public Uri InputAddress { get; private set; }
 
         /// <summary>
         /// Address to save destination.
-        /// 
-        /// Property is initialized in the constructor.
         /// </summary>
         public Uri OutputAddress { get; private set; }
 
         /// <summary>
         /// Current status of download.
         /// 
-        /// Property is set internally.
+        /// Status will not be updated if previously set to error or success.
         /// </summary>
-        /// <value></value>
-        public DownloadStatus Status { get; private set; }
+        public DownloadStatus Status
+        {
+            get => _status;
+            set
+            {
+                if(_status == DownloadStatus.Error || _status == DownloadStatus.Success)
+                    return;
+                
+                _status = value;
+            }
+        }
 
         /// <summary>
         /// Useful for determining if something went wrong with the download.
@@ -46,13 +56,11 @@ namespace MediaDrip.Downloader.Web
         /// <summary>
         /// Download options for things like overwriting existing files, downloading immediately, etc.
         /// </summary>
-        /// <value></value>
         public DownloadOptions Options { get; private set; }
 
         /// <summary>
         /// Current progress (0-100) of download.
         /// </summary>
-        /// <value>Progress property gets/sets the value of the _progress field.</value>
         public int Progress
         {
             get => _progress;
@@ -65,7 +73,7 @@ namespace MediaDrip.Downloader.Web
                     {
                         Status = DownloadStatus.InProgress;
                     }
-                    else if(value == 100)
+                    else if(value == 100 && Status != DownloadStatus.Error)
                     {
                         Status = DownloadStatus.Success;
                     }
@@ -115,7 +123,7 @@ namespace MediaDrip.Downloader.Web
         /// </summary>
         public void Cancel()
         {
-            if(Status != DownloadStatus.InProgress && !_cancelToken.Token.CanBeCanceled)
+            if(Status != DownloadStatus.InProgress || !_cancelToken.Token.CanBeCanceled)
                 return;
 
             Status = DownloadStatus.Canceled;
