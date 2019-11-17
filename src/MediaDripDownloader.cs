@@ -62,12 +62,12 @@ namespace MediaDrip
         {
             Console.WriteLine("disposing unmanaged");
 
+            UnsubscribeEventListeners();
+
             if(_queue != null)
             {
                 DequeueAll();
             }
-
-            UnsubscribeEventListeners();
         }
 
         /// <summary>
