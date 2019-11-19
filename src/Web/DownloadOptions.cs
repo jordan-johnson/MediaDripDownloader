@@ -15,7 +15,6 @@ namespace MediaDrip.Downloader.Web
         /// <summary>
         /// Assign default values to options and return this object.
         /// </summary>
-        /// <returns></returns>
         public DownloadOptions UseDefaults()
         {
             DownloadImmediately = true;
